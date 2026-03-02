@@ -1,3 +1,5 @@
+int weights[] = {8, 4, 2, 0, 0, 2, 4, 8};
+
 #include <QTRSensors.h>
 
 #define PINO_IN1 18  // Pino responsável pelo controle no sentido horário - M1
@@ -7,15 +9,13 @@
 
 const uint8_t SensorCount = 8;
 unsigned int sensorValues[SensorCount];
-float erroAcumulado = 0;
 
 // pinos dos sensores (ajuste conforme seu hardware)
 QTRSensorsRC qtr((unsigned char[]){2, 0, 4, 5, 6, 7, 8, 9}, SensorCount, 2000, 10);
 
-
 //constantes PID
 
-double Ki = 1;
+double Ki = 0;
 double Kp = 220;
 double Kd = 0;
 
@@ -69,14 +69,14 @@ void loop() {
   unsigned int position = qtr.readLine(sensorValues);
 
   // imprime os valores dos 8 sensores corretamente
-  for (uint8_t i = 0; i < SensorCount; i++) {
-    Serial.print("Sensor ");
-    Serial.print(i);          // <-- aqui é o índice correto!
-    Serial.print(": ");
-    Serial.print(sensorValues[i]);
-    Serial.print('\t');
-  }
-  Serial.println("\n");
+//  for (uint8_t i = 0; i < SensorCount; i++) {
+//    Serial.print("Sensor ");
+//    Serial.print(i);          // <-- aqui é o índice correto!
+//    Serial.print(": ");
+//    Serial.print(sensorValues[i]);
+//    Serial.print('\t');
+//  }
+//  Serial.println("\n");
   /*
   int pound = 0;
   for(int i=1; i<5; i++){
@@ -89,24 +89,24 @@ void loop() {
   float target = 0;
   for(int i=0; i<8; i++){
     if(i<4){
-      target -= (3 - i) * sensorValues[i];
+      target -= weights[i] * sensorValues[i];
     } else {
-      target += (i - 4) * sensorValues[i];
+      target += weights[i] * sensorValues[i];
     }
   }
   target = target/6000;
   //Dessa maneira, target passa a assumir o range (-1, 1)
 
-  erroAcumulado += target;
+  int erroAcumulado = target;
 
   if (erroAcumulado > 10) erroAcumulado = 10;
   if (erroAcumulado < -10) erroAcumulado = -10;
   
   int correcao = Kp * target + Ki * erroAcumulado;
-  int velocidade = 180;
+  int velocidade = 250;
 
-  int velEsquerda = velocidade - (2*correcao);
-  int velDireita  = velocidade + (2*correcao);
+  int velEsquerda = velocidade - (2.7*correcao);
+  int velDireita  = velocidade + (2.7*correcao);
 
   velEsquerda = constrain(velEsquerda, 0, 255);
   velDireita  = constrain(velDireita, 0, 238);
