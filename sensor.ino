@@ -17,7 +17,12 @@ QTRSensorsRC qtr((unsigned char[]){2, 0, 4, 5, 6, 7, 8, 9}, SensorCount, 2000, 1
 
 double Ki = 0;
 double Kp = 220;
-double Kd = 0;
+double Kd = 200;
+
+double erro = 0;
+double erroAnterior = 0;
+double derivativo = 0;
+double integral = 0;
 
 // configuracoes PID
 
@@ -101,9 +106,16 @@ void loop() {
 
   if (erroAcumulado > 10) erroAcumulado = 10;
   if (erroAcumulado < -10) erroAcumulado = -10;
+
+  double  erro = target;
+
+  double derivativo = erro - erroAnterior;
   
-  int correcao = Kp * target + Ki * erroAcumulado;
-  int velocidade = 250;
+  int correcao = Kp * target + Ki * erroAcumulado + Kd*derivativo;
+
+  erroAnterior = target;
+  
+  int velocidade = 270;
 
   int velEsquerda = velocidade - (2.7*correcao);
   int velDireita  = velocidade + (2.7*correcao);
